@@ -3,7 +3,7 @@
 
 #This script uses R command line to (mainly) run bedtool and awk commands
 #After couting the number of sequencing read by windows of 100bp  (size could be defined by user), the number is normalised by the total number of reads for each reaction.
-#
+
 
 
 
@@ -12,8 +12,9 @@
 																			###                                Required software and Input file							   ##	
 																		    ##############################################################
 
-	###Input: aligned reads files in bed format labelled with prefix: Ini_HL_ or Ini_LL (to be put in Input folder), for one Ini-seq experiemnt, same prefix should be given for HL and LL
-	###Segmented genome of the desired window, files to be put in Ref.genome folder
+#Input: aligned reads files in bed format labelled with prefix: Ini_HL_ or Ini_LL (to be put in Input folder), for one Ini-seq experiemnt, same prefix should be given for HL and LL
+#Segmented genome of the desired window, files to be put in ./Ref.genome folder. Window size must be stated at the end of filename eg: hg38_chr_size_windows_of_100.bed
+#Require to run this script: a subfolder ./Output itself containing two folders named as: ./HL and ./LL 
 
 
 
@@ -25,8 +26,7 @@
 
 				##Windows					
 
-	Windows <-  c(100)
-	
+	Windows <-  c(100) ##sevral window size can be specified. They will be sequentially processed, one segmented genome file per desired window should be present in the subfolder Ref.genome,	
 	
 				##Minimum (Normalised) Tags concidered for the analysis:
 	# Factor driving threshold under which number of tags are change by Value.HL.is.changed.by & Value.LL.is.changed.by. 
