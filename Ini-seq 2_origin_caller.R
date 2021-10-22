@@ -8,9 +8,7 @@
 
 
 
-																			##############################################################
-																			###                                Required software and Input file							   ##	
-																		    ##############################################################
+###  Required software and Input file
 
 #Input: aligned reads files in bed format labelled with prefix: Ini_HL_ or Ini_LL (to be put in Input folder), for one Ini-seq experiemnt, same prefix should be given for HL and LL
 #Segmented genome of the desired window, files to be put in ./Ref.genome folder. Window size must be stated at the end of filename eg: hg38_chr_size_windows_of_100.bed
@@ -19,12 +17,9 @@
 
 
 
-																			##############################################################
-																			###                     					           Settings												   ##	
-																		    ##############################################################
+### Settings
 
-
-				##Windows					
+			##Windows					
 
 	Windows <-  c(100) ##sevral window size can be specified. They will be sequentially processed, one segmented genome file per desired window should be present in the subfolder Ref.genome,	
 	
@@ -57,9 +52,8 @@
 	HL.enrichment.cut.off <- 0.8
 	
 
-																			##############################################################
-																			###             Remove temp files from previous run (if not yet done)                ##	
-																		    ##############################################################
+
+###             Remove temp files from previous run (if not yet done) 
 
 	##Delete temp files and previous versions 
 delete.temp.files <- paste("rm Input/*_single_nt_position.bed")
@@ -74,12 +68,10 @@ delete.Output.files.HL <- paste("rm Output/HL/*.bed")
 delete.Output.files.LL <- paste("rm Output/LL/*.bed")
 		try(system(delete.Output.files.LL))	
 		
+	
 		
 		
-																			##############################################################
-																			###          					 Load and check Prefix of Input files      			           ##	
-																		    ##############################################################
-
+###          					 Load and check Prefix of Input files  
 			
 File.list.Input <- list.files("Input/")[grep("*.bed",list.files("Input/"))]   ##list bed files only
 	
@@ -95,10 +87,7 @@ for(prefix in File.prefix)	{
 		
 		
 	
-																			##############################################################
-																			###          							Loop for file and window(s)     	  			           ##	
-																		    ##############################################################
-
+###  Loop for file and window(s)     	  			  
 
 Unique.File.name <- unique(substr(File.list.Input,8,nchar(File.list.Input))) ##Retreive file name w/o Ini_XL (Allow to run sevral Ini-seq conditions at once)
 
@@ -120,9 +109,8 @@ Unique.File.name <- unique(substr(File.list.Input,8,nchar(File.list.Input))) ##R
 
 
 	
-																			###################################################################
-																			##  Compute middle position of each read and past it onto start/end of each read  ##	
-																		    ###################################################################
+###  Compute middle position of each read and past it onto start/end of each read
+
 
 			try(system(paste("wc -l Input/",Input.bed," > Output/Number.reads.in.", Input.bed ,sep=""))) ###Count number of lines == number of reads
 		
@@ -139,9 +127,7 @@ Unique.File.name <- unique(substr(File.list.Input,8,nchar(File.list.Input))) ##R
 
 
 	
-																			###################################################################
-																			## 									Count number of tags / windows  									  ##	
-																		    ###################################################################
+## 									Count number of tags / windows
 
 
 		
@@ -219,9 +205,7 @@ Unique.File.name <- unique(substr(File.list.Input,8,nchar(File.list.Input))) ##R
 									
 														
 	
-																			###################################################################
-																			## 												Do Log2 ratios & filter	 	 									  ##	
-																		    ###################################################################
+### 												Do Log2 ratios & filter
 
 
 
@@ -248,9 +232,7 @@ Filtered.output <- Temp.tab.out[which(Temp.tab.out[,4]>= log.threshold),]
 write.table(Filtered.output,paste("Output/0.Filtered_Log_ratio_of_Ini_HL_LL_more_than_", log.threshold,"_of_",Condition.unique.name,sep=""),quote=F,col.names=F,row.names=F,sep="\t") 
 
 
- 																			###################################################################
-																			## 												Merge adjancent windows  									  ##	
-																		    ###################################################################
+### Merge adjancent windows  									 
 
 
 
@@ -263,10 +245,7 @@ command.2 <- paste("bedtools merge -d ", Merge.adjacent.island," -c 4 -o sum,cou
 
 
 
- 																			########################################################################
-																			## 					From called island, 're'-compute number of tags and normalised				 # 
-																		    ########################################################################
-
+### From called island, 're'-compute number of tags and normalised
 		
 		
 		###Do awk on 1.Merge_Filtered_Log_ratio_of_Ini_HL_LL_more_than_", log.threshold,"_of_",Condition.unique.name => To keep only chr start end / as other info not useful 
@@ -356,10 +335,7 @@ delete.temp.files <- paste("rm Output/Tidy.of.table.1.temp.file.bed")
 		try(system(delete.temp.files))	
 		
 
-		  																	########################################################################
-																			## 												Do HL/(HL+LL) & filter 													  # 
-																		    ########################################################################
-
+### 	Do HL/(HL+LL) & filter 
 
 
 			
