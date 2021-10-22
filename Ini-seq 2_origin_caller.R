@@ -53,7 +53,7 @@
 	
 
 
-###             Remove temp files from previous run (if not yet done) 
+### Remove temp files from previous run (if not yet done) 
 
 	##Delete temp files and previous versions 
 delete.temp.files <- paste("rm Input/*_single_nt_position.bed")
@@ -71,7 +71,7 @@ delete.Output.files.LL <- paste("rm Output/LL/*.bed")
 	
 		
 		
-###          					 Load and check Prefix of Input files  
+### Load and check Prefix of Input files  
 			
 File.list.Input <- list.files("Input/")[grep("*.bed",list.files("Input/"))]   ##list bed files only
 	
@@ -127,7 +127,7 @@ Unique.File.name <- unique(substr(File.list.Input,8,nchar(File.list.Input))) ##R
 
 
 	
-## 									Count number of tags / windows
+### Count number of tags / windows
 
 
 		
@@ -177,7 +177,7 @@ Unique.File.name <- unique(substr(File.list.Input,8,nchar(File.list.Input))) ##R
 				try(system(command))	  ##Call bedtool
 
 
-	###For LL: If number of tags < @ min (defined by user), replace by 0
+	##For LL: If number of tags < @ min (defined by user), replace by 0
 	
 				Temp.norm.LL <- read.table(Output.file.name)
 				num <- which(Temp.norm.LL[,4]==0 & Temp.norm.LL[,4]<= as.numeric(round(Total.num.mapped.read* LL_min_tags_factor,0)))
@@ -205,7 +205,7 @@ Unique.File.name <- unique(substr(File.list.Input,8,nchar(File.list.Input))) ##R
 									
 														
 	
-### 												Do Log2 ratios & filter
+### Do Log2 ratios & filter
 
 
 
@@ -315,6 +315,8 @@ for (Final.count in File.list.Input.sngl.nt.pos){
 			
 
 ###Normalised number of counts by total number of reads 
+
+
 			File.to.open <- list.files("Output")[grep(paste("Number.reads.in.",substr(Final.count,0,nchar(Final.count)-23),"*",sep=""),list.files("Output/"))]
 			Total.num.mapped.read <- read.table(paste("Output/",File.to.open,sep=""))[1]
  									
@@ -336,11 +338,6 @@ delete.temp.files <- paste("rm Output/Tidy.of.table.1.temp.file.bed")
 		
 
 ### 	Do HL/(HL+LL) & filter 
-
-
-			
-
-
 
 					print(paste("Do HL/(HL+LL): ",Condition.unique.name,sep=""))
 
