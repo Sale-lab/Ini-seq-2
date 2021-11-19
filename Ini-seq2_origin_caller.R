@@ -1,8 +1,8 @@
 ##G.Guilbaud JE Sale group 2021
-##Ori peak caller and effiency score script
+##Ori peak caller and efficiency score script
 
 #This script uses R command line to (mainly) run bedtool and awk commands
-#After couting the number of sequencing read by windows of 100bp  (size could be defined by user), the number is normalised by the total number of reads for each reaction.
+#After counting the number of sequencing read by windows of 100bp  (size could be defined by user), the number is normalised by the total number of reads for each reaction.
 
 
 
@@ -10,7 +10,7 @@
 
 ###  Required software and Input file
 
-#Input: aligned reads files in bed format labelled with prefix: Ini_HL_ or Ini_LL (to be put in Input folder), for one Ini-seq experiemnt, same prefix should be given for HL and LL
+#Input: aligned reads files in bed format labelled with prefix: Ini_HL_ or Ini_LL (to be put in Input folder), for one Ini-seq experiement, same prefix should be given for HL and LL
 #Segmented genome of the desired window, files to be put in ./Ref.genome folder. Window size must be stated at the end of filename eg: hg38_chr_size_windows_of_100.bed
 #Require to run this script: a subfolder ./Output itself containing two folders named as: ./HL and ./LL 
 
@@ -23,7 +23,7 @@
 
 	Windows <-  c(100) ##sevral window size can be specified. They will be sequentially processed, one segmented genome file per desired window should be present in the subfolder Ref.genome,	
 	
-				##Minimum (Normalised) Tags concidered for the analysis:
+				##Minimum (Normalised) Tags considered for the analysis:
 	# Factor driving threshold under which number of tags are change by Value.HL.is.changed.by & Value.LL.is.changed.by. 
 	#Set as a function of total number of reads (eg 50e6 reads, want to change ,5tags=0 => tags_factor=10.e-8. Previously HL_min_tags_factor <- 15.e-8, LL_min_tags_factor <- 5e-8)
 	
@@ -77,7 +77,7 @@ File.list.Input <- list.files("Input/")[grep("*.bed",list.files("Input/"))]   ##
 	
 File.prefix <- substr(File.list.Input,0,6)	##Keep first 6 characters of file name
 		
-		##Check PRefix of input file, stop script if not correct
+		##Check Prefix of input file, stop script if not correct
 for(prefix in File.prefix)	{
 	
 	if(prefix!="Ini_HL"){ if (prefix!="Ini_LL"){stop("Files prefix Have to be labelled as: Ini_HL_XXX.bed or Ini_LL_XXX_.bed")}}
@@ -91,9 +91,9 @@ for(prefix in File.prefix)	{
 
 Unique.File.name <- unique(substr(File.list.Input,8,nchar(File.list.Input))) ##Retreive file name w/o Ini_XL (Allow to run sevral Ini-seq conditions at once)
 
-	for (Input.name in Unique.File.name ){ ##Loop to run experiemnts 
+	for (Input.name in Unique.File.name ){ ##Loop to run experiements 
 		
-		for (Windows.size in Windows){		##Work on each window sequntially
+		for (Windows.size in Windows){		##Work on each window sequentially
 			
 			for (Conditon.to.run in c(1,2)){
 			
@@ -115,7 +115,7 @@ Unique.File.name <- unique(substr(File.list.Input,8,nchar(File.list.Input))) ##R
 			try(system(paste("wc -l Input/",Input.bed," > Output/Number.reads.in.", Input.bed ,sep=""))) ###Count number of lines == number of reads
 		
 
-			Total.num.mapped.read <- read.table(paste("Output/Number.reads.in.", Input.bed ,sep=""))[1] ### Retreive number of lines 
+			Total.num.mapped.read <- read.table(paste("Output/Number.reads.in.", Input.bed ,sep=""))[1] ### Retrieve number of lines 
 		
 			
 			File.Prefix <- substr(Input.bed,0,nchar(Input.bed)-4) ##rm ".bed"
@@ -232,7 +232,7 @@ Filtered.output <- Temp.tab.out[which(Temp.tab.out[,4]>= log.threshold),]
 write.table(Filtered.output,paste("Output/0.Filtered_Log_ratio_of_Ini_HL_LL_more_than_", log.threshold,"_of_",Condition.unique.name,sep=""),quote=F,col.names=F,row.names=F,sep="\t") 
 
 
-### Merge adjancent windows  									 
+### Merge adjacent windows  									 
 
 
 
