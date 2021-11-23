@@ -1,8 +1,8 @@
 ##G.Guilbaud JE Sale group 2021
-##Ori peak caller and efficiency score script
+##Ori peak caller and effiency score script
 
-#This script uses R command line to (mainly) run bedtool and awk commands
-#After counting the number of sequencing read by windows of 100bp  (size could be defined by user), the number is normalised by the total number of reads for each reaction.
+#This script uses R command line to (mainly) run bedtools and awk commands
+#After counting the number of sequencing reads by windows of 100bp  (size can be defined by user), the number of reads per window is normalised to the total number of reads for each reaction.
 
 
 
@@ -10,9 +10,9 @@
 
 ###  Required software and Input file
 
-#Input: aligned reads files in bed format labelled with prefix: Ini_HL_ or Ini_LL (to be put in Input folder), for one Ini-seq experiement, same prefix should be given for HL and LL
-#Segmented genome of the desired window, files to be put in ./Ref.genome folder. Window size must be stated at the end of filename eg: hg38_chr_size_windows_of_100.bed
-#Require to run this script: a subfolder ./Output itself containing two folders named as: ./HL and ./LL 
+#Input: aligned read files in bed format labelled with prefix 'Ini_HL_' or 'Ini_LL' and placed in the Input folder. For one Ini-seq experiment, the same prefix should be used for HL and LL.
+#Segmented genome of the desired window: Files to be placed in './Ref.genome folder'. Window size must be stated at the end of filename eg: 'hg38_chr_size_windows_of_100.bed'
+#Required to run this script: a subfolder './Output', itself containing two folders named as: './HL' and './LL'.
 
 
 
@@ -21,24 +21,27 @@
 
 			##Windows					
 
-	Windows <-  c(100) ##sevral window size can be specified. They will be sequentially processed, one segmented genome file per desired window should be present in the subfolder Ref.genome,	
+	Windows <-  c(100) ##several window sizes can be specified. They will be sequentially processed, one segmented genome file per desired window should be present in the subfolder Ref.genome.	
 	
-				##Minimum (Normalised) Tags considered for the analysis:
-	# Factor driving threshold under which number of tags are change by Value.HL.is.changed.by & Value.LL.is.changed.by. 
-	#Set as a function of total number of reads (eg 50e6 reads, want to change ,5tags=0 => tags_factor=10.e-8. Previously HL_min_tags_factor <- 15.e-8, LL_min_tags_factor <- 5e-8)
+			##Minimum (Normalised) Tags considered for the analysis:
+				#Factor driving threshold under which number of tags are changed by 'Value.HL.is.changed.by' & 'Value.LL.is.changed.by'. 
+				#Set as a function of total number of reads (eg 50e6 reads, want to change ,5tags=0 => tags_factor=10.e-8. Previously HL_min_tags_factor <- 15.e-8, LL_min_tags_factor <- 5e-8)
 	
 	HL_min_tags_factor <- 13.e-8 
 	LL_min_tags_factor <- 5.e-8
 	
 	Value.HL.is.changed.by <- 0
-	Value.LL.is.changed.by <- 1e-20
+	Value.LL.is.changed.by <- 1e-20 ##LL value is changed by 1e-20 if equal to 0 or if lower than LL_min_tags_factor (thus avoiding dividing by 0)
+
 
 	
-			##Min log2 threshold: Window to be kept after counting reads per window and log2(HL/LL) computed
+			##Min log2 threshold for a window to be retained after counting reads per window and log2(HL/LL) computed
+
 	log.threshold <- 2
 	
 	
-			##Size (in pb) of adjacent kept windows to merge (latter called island)
+			##Size (in bp) of adjacent retained windows to merge (the merged windows being later called an island.)
+
 	Merge.adjacent.island <- 510
 	
 	
@@ -48,14 +51,15 @@
 	
 	
 			##Final enrichment threshold. (Once islands determined, recount reads in each island, compute HL/(HL+LL), and keep only island with ratio > HL.enrichment.cut.off)
-				
+
 	HL.enrichment.cut.off <- 0.8
 	
 
 
 ### Remove temp files from previous run (if not yet done) 
 
-	##Delete temp files and previous versions 
+		##Delete temp files and previous versions 
+		
 delete.temp.files <- paste("rm Input/*_single_nt_position.bed")
 		try(system(delete.temp.files))	
 		
@@ -77,7 +81,8 @@ File.list.Input <- list.files("Input/")[grep("*.bed",list.files("Input/"))]   ##
 	
 File.prefix <- substr(File.list.Input,0,6)	##Keep first 6 characters of file name
 		
-		##Check Prefix of input file, stop script if not correct
+		##Check PRefix of input file, stop script if not correct
+		
 for(prefix in File.prefix)	{
 	
 	if(prefix!="Ini_HL"){ if (prefix!="Ini_LL"){stop("Files prefix Have to be labelled as: Ini_HL_XXX.bed or Ini_LL_XXX_.bed")}}
@@ -89,11 +94,11 @@ for(prefix in File.prefix)	{
 	
 ###  Loop for file and window(s)     	  			  
 
-Unique.File.name <- unique(substr(File.list.Input,8,nchar(File.list.Input))) ##Retreive file name w/o Ini_XL (Allow to run sevral Ini-seq conditions at once)
+Unique.File.name <- unique(substr(File.list.Input,8,nchar(File.list.Input))) ##Retreive file name w/o Ini_XL (Allows several Ini-seq conditions to be run at once)
 
-	for (Input.name in Unique.File.name ){ ##Loop to run experiements 
+	for (Input.name in Unique.File.name ){ ##Loop to run experiemnts 
 		
-		for (Windows.size in Windows){		##Work on each window sequentially
+		for (Windows.size in Windows){	##Work on each window sequntially
 			
 			for (Conditon.to.run in c(1,2)){
 			
@@ -109,19 +114,19 @@ Unique.File.name <- unique(substr(File.list.Input,8,nchar(File.list.Input))) ##R
 
 
 	
-###  Compute middle position of each read and past it onto start/end of each read
+###  Compute middle position of each read and pass it to the start/end of each read
 
 
 			try(system(paste("wc -l Input/",Input.bed," > Output/Number.reads.in.", Input.bed ,sep=""))) ###Count number of lines == number of reads
 		
 
-			Total.num.mapped.read <- read.table(paste("Output/Number.reads.in.", Input.bed ,sep=""))[1] ### Retrieve number of lines 
+			Total.num.mapped.read <- read.table(paste("Output/Number.reads.in.", Input.bed ,sep=""))[1] ### Retreive number of lines 
 		
 			
 			File.Prefix <- substr(Input.bed,0,nchar(Input.bed)-4) ##rm ".bed"
 
 	
-					##Call system to run awk command			
+			##Call system to run awk command			
 	     	try(system( paste("awk '{print $1, $2+35, $2+35}' OFS='\t' Input/", Input.bed, " > ", "./Input/",File.Prefix,"_single_nt_position.bed",sep=""))) ##asign middle position
 
 
@@ -147,7 +152,7 @@ Unique.File.name <- unique(substr(File.list.Input,8,nchar(File.list.Input))) ##R
 
 					### Normalised all conditions by total number of reads 
 																		
- 									print(paste("Normalising: ", Name.file.to.count,", by: ",Total.num.mapped.read,sep=""))
+ 					print(paste("Normalising: ", Name.file.to.count,", by: ",Total.num.mapped.read,sep=""))
 
 			print(paste("Changing #tags in HL by 0 if less than ", round(Total.num.mapped.read*HL_min_tags_factor,0) ," tags",sep=""))
 			
@@ -161,7 +166,7 @@ Unique.File.name <- unique(substr(File.list.Input,8,nchar(File.list.Input))) ##R
 
 				awk.command <- paste("awk '{print $1, $2, $3, $4/",Total.num.mapped.read,"}' ", Output.file.name," > ","Output/HL/Normalised_",substr(Name.file.to.count,0,nchar(Name.file.to.count)-4),"_by_", Windows.size,"_bp_windows.bed" , sep="") #Normalised by total number of reads
 
-				try(system(awk.command))		##Call awk
+				try(system(awk.command))	##Call awk
 
 		
 		}
@@ -193,13 +198,9 @@ Unique.File.name <- unique(substr(File.list.Input,8,nchar(File.list.Input))) ##R
 				awk.command.zero <- paste("awk '{print $1, $2, $3, $4/",Total.num.mapped.read,"}' ", Output.file.name," > ","Output/LL/Normalised_",substr(Name.file.to.count,0,nchar(Name.file.to.count)-4),"_by_", Windows.size,"_bp_windows.bed" , sep="") #Normalised by total number of reads
 				
 				try(system(awk.command.zero))	 ##Call awk
-
-	
-		
-
 		
 		}	
-}##End Condition to run
+} ##End Condition to run
 								
 									
 									
@@ -211,33 +212,30 @@ Unique.File.name <- unique(substr(File.list.Input,8,nchar(File.list.Input))) ##R
 
 Condition.unique.name <- paste(substr(Input.name,0,nchar(Input.name)-4),"_single_nt_position_by_", Windows.size,"_bp_windows.bed",sep="")
 					
-					print(paste("Normalising HL/LL: ",Condition.unique.name,sep=""))
+print(paste("Normalising HL/LL: ",Condition.unique.name,sep=""))
 
-	HL.file <- read.table(paste("Output/HL/Normalised_Ini_HL_",Condition.unique.name,sep=""),sep="")
-	LL.file <- read.table(paste("Output/LL/Normalised_Ini_LL_",Condition.unique.name,sep=""),sep="")
+HL.file <- read.table(paste("Output/HL/Normalised_Ini_HL_",Condition.unique.name,sep=""),sep="")
+LL.file <- read.table(paste("Output/LL/Normalised_Ini_LL_",Condition.unique.name,sep=""),sep="")
 												
-
-non.0 <- which(HL.file[,4]!=0) ##select window with more than 0 tags 
+non.0 <- which(HL.file[,4]!=0) ##select windows with more than 0 tags 
 Temp.tab.out <- HL.file
 Temp.tab.out[non.0,4] <- round(log((HL.file[non.0,4]/LL.file[non.0,4]),2),3)  ##Do log ratio on HL not equal to 0
 write.table(Temp.tab.out,paste("Output/For_IGV_Log_ratio_of_Ini_HL_LL",Condition.unique.name,sep=""),quote=F,col.names=F,row.names=F,sep="\t") ##write.table
 
-		##Apply log.threshold
-Filtered.output <- Temp.tab.out[which(Temp.tab.out[,4]>= log.threshold),]
+	##Apply log.threshold
+	Filtered.output <- Temp.tab.out[which(Temp.tab.out[,4]>= log.threshold),]
 
 		##Need to remove Inf to please bedtool
-			temp.pos <- which(Filtered.output[,4]>1000)
-	Filtered.output[temp.pos,4] <- 10000. ##Change 07 07 2021 -before 1000000- 
+		temp.pos <- which(Filtered.output[,4]>1000)
+		Filtered.output[temp.pos,4] <- 10000. ##Change 07 07 2021 -before 1000000- 
 
 write.table(Filtered.output,paste("Output/0.Filtered_Log_ratio_of_Ini_HL_LL_more_than_", log.threshold,"_of_",Condition.unique.name,sep=""),quote=F,col.names=F,row.names=F,sep="\t") 
 
 
 ### Merge adjacent windows  									 
 
-
-
 	###Merge adjacent islands if < Merge.adjacent.island (i.e: adjacent ones!) 
-					print(paste("Merging island ",sep=""))
+		print(paste("Merging island ",sep=""))
 
 command.2 <- paste("bedtools merge -d ", Merge.adjacent.island," -c 4 -o sum,count -i",paste(" Output/0.Filtered_Log_ratio_of_Ini_HL_LL_more_than_", log.threshold,"_of_",Condition.unique.name,sep="")," > Output/1.Merge_Filtered_Log_ratio_of_Ini_HL_LL_more_than_", log.threshold,"_of_",Condition.unique.name, sep="") ##Prepare bedtools command
 
@@ -274,24 +272,25 @@ for (Final.count in File.list.Input.sngl.nt.pos){
  			if(HL>0 & LL==0){	##run for HL and test if LL really = 0 
 
 
-	##Prepare name for tab.out
-	Output.file.name.final.count.HL <- paste("Output/HL/Recount.tags.per.called.island.in.HL.of.",Condition.unique.name,sep="")
+		##Prepare name for tab.out
+		Output.file.name.final.count.HL <- paste("Output/HL/Recount.tags.per.called.island.in.HL.of.",Condition.unique.name,sep="")
 	
-	##Bedtool to count reads within selected regions
-	command.3 <- paste("bedtools window -c -w 0 -a Output/Tidy.of.table.1.temp.file.bed -b Input/", Final.count," > ", Output.file.name.final.count.HL,	sep="") ##Prepare bedtools command to count reads
+		##Bedtool to count reads within selected regions
+		command.3 <- paste("bedtools window -c -w 0 -a Output/Tidy.of.table.1.temp.file.bed -b Input/", Final.count," > ", Output.file.name.final.count.HL,	sep="") ##Prepare bedtools command to count reads
 	
-									print(paste("Recount_reads_in_called_region_of_",Final.count,sep=""))
-			try(system(command.3))	##Call bedtool
+		print(paste("Recount_reads_in_called_region_of_",Final.count,sep=""))
+		
+		try(system(command.3))	##Call bedtools
 
 
-###Normalised number of counts by total number of reads 
+	###Normalised number of counts by total number of reads 
 			File.to.open <- list.files("Output")[grep(paste("Number.reads.in.",substr(Final.count,0,nchar(Final.count)-23),"*",sep=""),list.files("Output/"))]
 			Total.num.mapped.read <- read.table(paste("Output/",File.to.open,sep=""))[1]
  									
  									print(paste("Normalising: ", Final.count,", by: ",Total.num.mapped.read,sep=""))
 
-		##In this awk, col 4 = number of merged island and $5 number of tags, normalised col 5 by number of reads and swap 4 <-> 5
-				awk.command.2 <- paste("awk '{print $1, $2, $3, $4/",Total.num.mapped.read,"}'  OFS='\t'  ", Output.file.name.final.count.HL," > ","Output/HL/Final.Normalised_Recount.tags.per.called.island.in.HL.of.",Condition.unique.name,sep="")
+	##In this awk, col 4 = number of merged island and $5 number of tags, normalised col 5 by number of reads and swap 4 <-> 5
+			awk.command.2 <- paste("awk '{print $1, $2, $3, $4/",Total.num.mapped.read,"}'  OFS='\t'  ", Output.file.name.final.count.HL," > ","Output/HL/Final.Normalised_Recount.tags.per.called.island.in.HL.of.",Condition.unique.name,sep="")
 				
 				try(system(awk.command.2))	##Call awk
 
@@ -303,9 +302,11 @@ for (Final.count in File.list.Input.sngl.nt.pos){
 	if(LL>0 & HL==0){	##run for LL and test if HL really = 0 
 
 	##Prepare name for tab.out
+	
 	Output.file.name.final.count.LL <- paste("Output/LL/Recount.tags.per.called.island.in.LL.of.",Condition.unique.name,sep="")
 	
 	##Bedtool to count reads within selected regions
+	
 	command.3 <- paste("bedtools window -c -w 0 -a Output/Tidy.of.table.1.temp.file.bed -b Input/", Final.count," > ", Output.file.name.final.count.LL,	sep="") ##Prepare bedtools command to count reads
 	
 										print(paste("Recount_reads_in_called_region_of_",Final.count,sep=""))
@@ -328,8 +329,6 @@ for (Final.count in File.list.Input.sngl.nt.pos){
 				
 				try(system(awk.command.2))	##Call awk
 
-
-
 	}
 }
 
@@ -337,7 +336,7 @@ delete.temp.files <- paste("rm Output/Tidy.of.table.1.temp.file.bed")
 		try(system(delete.temp.files))	
 		
 
-### 	Do HL/(HL+LL) & filter 
+### Do HL/(HL+LL) & filter 
 
 					print(paste("Do HL/(HL+LL): ",Condition.unique.name,sep=""))
 
@@ -345,17 +344,20 @@ delete.temp.files <- paste("rm Output/Tidy.of.table.1.temp.file.bed")
 	LL.file <- read.table(paste("Output/LL/Final.Normalised_Recount.tags.per.called.island.in.LL.of.",Condition.unique.name,sep=""),sep="")
 
 													
-##This should not be required as already selected region enriched in HL - Do test
-non.0 <- which(HL.file[,4]!=0)
-if(length(which(HL.file[,4]==0))>0){print("WARNING: REGIONS WITH 0 TAGS IN HL")}
+	##This should not be required as already selected region enriched in HL - Do test
 
-HL.file[,4] <- round(HL.file[,4]/(HL.file[,4]+LL.file[,4]),4)  
+	non.0 <- which(HL.file[,4]!=0)
+	if(length(which(HL.file[,4]==0))>0){print("WARNING: REGIONS WITH 0 TAGS IN HL")}
+
+		HL.file[,4] <- round(HL.file[,4]/(HL.file[,4]+LL.file[,4]),4)  
 
 ###Select only island > Final.min.lim.Island.size
+
 Filtered.output.temp <- HL.file[which((HL.file[,3]-HL.file[,2])>= Final.min.lim.Island.size),]
 
 
 ###Threshold HL/(HL+LL) (HL.enrichment.cut.off)
+
 Filtered.output <- Filtered.output.temp[which(Filtered.output.temp[,4]>=HL.enrichment.cut.off),]
 	
 		
