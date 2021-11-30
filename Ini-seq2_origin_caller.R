@@ -227,7 +227,7 @@ write.table(Temp.tab.out,paste("Output/For_IGV_Log_ratio_of_Ini_HL_LL",Condition
 
 		##Need to remove Inf to please bedtool
 		temp.pos <- which(Filtered.output[,4]>1000)
-		Filtered.output[temp.pos,4] <- 10000. ##Change 07 07 2021 -before 1000000- 
+		Filtered.output[temp.pos,4] <- 10000  
 
 write.table(Filtered.output,paste("Output/0.Filtered_Log_ratio_of_Ini_HL_LL_more_than_", log.threshold,"_of_",Condition.unique.name,sep=""),quote=F,col.names=F,row.names=F,sep="\t") 
 
