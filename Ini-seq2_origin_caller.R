@@ -127,7 +127,7 @@ Unique.File.name <- unique(substr(File.list.Input,8,nchar(File.list.Input))) ##R
 
 	
 			##Call system to run awk command => Set up at 25 (for 50bp reads).			
-	     	try(system( paste("awk '{print $1, $2+25, $2+25}' OFS='\t' Input/", Input.bed, " > ", "./Input/",File.Prefix,"_single_nt_position.bed",sep=""))) ##asign middle position. To be changed if reads length =! 50
+	     	try(system( paste("awk '{print $1, $2+35, $2+35}' OFS='\t' Input/", Input.bed, " > ", "./Input/",File.Prefix,"_single_nt_position.bed",sep=""))) ##asign middle position. To be changed if reads length =! 50
 
 
 
