@@ -237,7 +237,7 @@ AT.skew.plot <- ggplot(IniSeq.plot.3, aes(x=dist, y=skew, color=class)) +
   xlab("Distance from origin (bp)") + ylab("AT nucleotide skew") + ggtitle("AT skew") +
   theme_bw() + theme(aspect.ratio=1)
 
-pdf("./Rplot/Figure_4A_4B_S4B.pdf", width=15, height=4, useDingbats=FALSE)
+pdf("./Rplot/Figure_5A_5B_S6B.pdf", width=15, height=4, useDingbats=FALSE)
 ggarrange(GC.plot, GC.skew.plot, AT.skew.plot, ncol = 3, nrow = 1)
 dev.off()
 
@@ -493,7 +493,7 @@ Z.plot <- Z.ori.df %>% filter(class == "Low" | class == "Medium" | class == "Hig
 
 # Save plot
 
-pdf("./Rplot/Figure_S4B.pdf", width=20, height=8, useDingbats=FALSE)
+pdf("./Rplot/Figure_S6B.pdf", width=20, height=8, useDingbats=FALSE)
 ggarrange(APR.plot, DR.plot, GQ.plot, IR.plot, MR.plot, STR.plot, Z.plot, ncol = 4, nrow = 2)
 dev.off()
 
@@ -818,7 +818,7 @@ c <- ori.chrom %>% ggplot(aes(x = EFF, y = H3K36me3)) +
   geom_smooth(colour = "#3B9AB2") + ylim(-1.5,1) + xlab("Efficiency") + ylab ("H3K36me3 coverage (log10)") + ggtitle("Rho = -0.375923598") +
   theme_bw() + theme(aspect.ratio=1)
 # save plots
-pdf("./Rplot/Figure_4D.pdf", width=10, height=4, useDingbats=FALSE)
+pdf("./Rplot/Figure_5D.pdf", width=10, height=4, useDingbats=FALSE)
 ggarrange(a, b, c, nrow = 1, ncol = 3)
 dev.off()
 
@@ -834,7 +834,7 @@ col_breaks = c(seq(-0.5,-0.1,length=100),  # for blue
 distance <- dist(res, method = "manhattan")
 cluster <- hclust(distance, method = "single")
 # save heatmap
-pdf("./Rplot/Figure_4E.pdf", width=10, height=10, useDingbats=FALSE)
+pdf("./Rplot/Figure_5E.pdf", width=10, height=10, useDingbats=FALSE)
 heatmap.2(x = res, col = col, breaks= col_breaks, symm = TRUE, trace="none",
           Rowv = as.dendrogram(cluster), # apply default clustering method
           Colv = as.dendrogram(cluster)) # apply default clustering method
@@ -876,7 +876,7 @@ f <- pca.individual.df %>%
 
 # Save plots
 
-pdf("./Rplot/Figure_4F.pdf", width=10, height=5, useDingbats=FALSE)
+pdf("./Rplot/Figure_5F.pdf", width=10, height=5, useDingbats=FALSE)
 ggarrange(e, f, ncol = 2, nrow = 1)
 dev.off()
 
@@ -967,7 +967,7 @@ contribution.plot <- cont %>%
 
 # Save Figures
 
-pdf("./Rplot/Figure_4G_4H.pdf", width=12, height=5, useDingbats=FALSE)
+pdf("./Rplot/Figure_5G_5H.pdf", width=12, height=5, useDingbats=FALSE)
 ggarrange(model.plot, contribution.plot, nrow = 1, ncol = 2)
 dev.off()
 
