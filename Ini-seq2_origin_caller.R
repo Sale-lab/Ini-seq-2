@@ -10,7 +10,7 @@
 
 ###  Required software and Input file
 
-#Input: aligned read files in bed format labelled with prefix 'Ini_HL_' or 'Ini_LL' and placed in the Input folder. For one Ini-seq experiment, the same prefix should be used for HL and LL.
+#Input: aligned read files in bed format labelled with prefix 'Ini_HL_' or 'Ini_LL' and placed in the Input folder. For one Ini-seq experiment, the same suffix should be used for HL and LL.
 #Segmented genome of the desired window: Files to be placed in './Ref.genome folder'. Window size must be stated at the end of filename eg: 'hg38_chr_size_windows_of_100.bed'
 #Required to run this script: a subfolder './Output', itself containing two folders named as: './HL' and './LL'.
 
